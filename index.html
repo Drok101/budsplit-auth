@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Email Confirmed - BudSplit</title>
+    <title>Redirecting to BudSplit</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
@@ -19,20 +19,27 @@
             padding: 20px;
             max-width: 600px;
         }
-        .success-icon {
-            width: 60px;
-            height: 60px;
+        .spinner {
+            width: 40px;
+            height: 40px;
             margin: 20px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
             border-radius: 50%;
-            background-color: #4CAF50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            animation: spin 1s linear infinite;
         }
-        .success-icon::before {
-            content: '✓';
-            color: white;
-            font-size: 40px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #error {
+            display: none;
+            color: #ff4444;
+            margin-top: 20px;
+        }
+        #manual-open {
+            display: none;
+            margin-top: 20px;
         }
         .button {
             background-color: #4CAF50;
@@ -44,55 +51,44 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin-top: 20px;
-        }
-        .instructions {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-        .instructions ol {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .instructions li {
-            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="success-icon"></div>
-        <h2>Email Confirmed Successfully!</h2>
-        <p>Your email has been confirmed. Since you're using Expo Go, please follow these steps:</p>
-        
-        <div class="instructions">
-            <ol>
-                <li>Open the Expo Go app on your device</li>
-                <li>Go back to the BudSplit app in Expo Go</li>
-                <li>Try logging in with your confirmed email</li>
+        <h2>Redirecting to BudSplit...</h2>
+        <div class="spinner"></div>
+        <p>Please wait while we confirm your email...</p>
+        <div id="error">
+            <p>If you're not automatically redirected, please click the button below:</p>
+            <a id="manual-link" href="#" class="button">Open BudSplit</a>
+        </div>
+        <div id="manual-open">
+            <p>If you're using Expo Go:</p>
+            <ol style="text-align: left;">
+                <li>Open the Expo Go app</li>
+                <li>Return to the BudSplit app</li>
+                <li>Try logging in with your email</li>
             </ol>
         </div>
-
-        <p>You can now close this window and return to the app.</p>
     </div>
     <script>
         window.onload = function() {
-            // Get all URL parameters
             const params = new URLSearchParams(window.location.search);
+            const redirectUrl = `exp://${window.location.hostname}:19000/--/auth-callback${window.location.search}`;
+            const productionUrl = `budsplit://auth-callback${window.location.search}`;
             
-            // Store the confirmation in localStorage
-            localStorage.setItem('emailConfirmed', 'true');
-            localStorage.setItem('confirmedEmail', params.get('email'));
+            console.log('Attempting to redirect to:', redirectUrl);
             
-            // Attempt to redirect (won't work in Expo Go but keeping for future native builds)
+            // Try to redirect to Expo development URL
+            window.location.href = redirectUrl;
+            
+            // Show manual instructions after a delay
             setTimeout(() => {
-                const redirectUrl = 'budsplit://auth-callback?' + params.toString();
-                window.location.href = redirectUrl;
-            }, 1000);
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('manual-open').style.display = 'block';
+                document.getElementById('manual-link').href = productionUrl;
+            }, 3000);
         };
     </script>
 </body>
